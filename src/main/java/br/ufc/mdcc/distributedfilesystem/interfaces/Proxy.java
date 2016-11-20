@@ -9,13 +9,14 @@ public interface Proxy extends Remote{
 	//determinar a disponibilidade de umproxy
 	abstract boolean isAvailable() throws RemoteException;
 	abstract void setAvailability(boolean status) throws RemoteException;
+	public abstract String getName() throws RemoteException;
 	
 	//Metod de leiutra e escreta de soliciados por um cliente
-	abstract File getFile(String name);
-	abstract File[] getAllFiles();
-	abstract void writeFile(File file);
-	abstract void deleteFile(File file);
-	abstract void updateFile(File file);
+	abstract File getFile(String name) throws RemoteException;
+	abstract File[] getAllFiles() throws RemoteException;
+	abstract void writeFile(File file) throws RemoteException;
+	abstract void deleteFile(File file) throws RemoteException;
+	abstract void updateFile(File file) throws RemoteException;
 	
 	
 }

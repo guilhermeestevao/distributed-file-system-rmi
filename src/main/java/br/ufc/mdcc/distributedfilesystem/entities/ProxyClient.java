@@ -1,5 +1,6 @@
 package br.ufc.mdcc.distributedfilesystem.entities;
 
+import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -16,17 +17,16 @@ public class ProxyClient {
 	
 	public static void main(String[] args) {
 		
+		Proxy stub = null;
+		Registry registry = null;
+		Scanner sc = new Scanner(System.in);
+		String name = sc.next();
 		try {
 			
-			Scanner sc = new Scanner(System.in);
-			
-			String name = sc.next();
-			
 			ProxyImpl proxy = new ProxyImpl(name);
-			Proxy stub = (Proxy) UnicastRemoteObject.exportObject(proxy, 0);
-            Registry registry = LocateRegistry.getRegistry();
+			stub = (Proxy) UnicastRemoteObject.exportObject(proxy, 0);
+            registry = LocateRegistry.getRegistry();
 			registry.bind(name, stub);
-			
 			registryOnBalanceNodeList(proxy);
 			
 			System.err.println("Proxy "+proxy+"está disponivel");
@@ -36,7 +36,15 @@ public class ProxyClient {
 			e.printStackTrace();
 		} catch (AlreadyBoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			try {
+				registry.rebind(name, stub);
+			} catch (AccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}	
 	}
 	

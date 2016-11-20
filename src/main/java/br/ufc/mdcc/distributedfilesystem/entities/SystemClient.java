@@ -1,11 +1,13 @@
 package br.ufc.mdcc.distributedfilesystem.entities;
 
+import java.io.File;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import br.ufc.mdcc.distributedfilesystem.interfaces.BalanceNode;
+import br.ufc.mdcc.distributedfilesystem.interfaces.Proxy;
 
 public class SystemClient {
 
@@ -16,6 +18,13 @@ public class SystemClient {
 			Registry registry = LocateRegistry.getRegistry(null, 1099);
 			
 			BalanceNode stub = (BalanceNode) registry.lookup(name);
+			
+			Proxy proxy = stub.requestProxy();
+			
+			System.out.println("Selecionado "+proxy.getName());
+			proxy.writeFile(new File("/home/guilherme/Untitled.ipynb"));
+			
+
 			
 			//Operações de read e write aqui 
 			

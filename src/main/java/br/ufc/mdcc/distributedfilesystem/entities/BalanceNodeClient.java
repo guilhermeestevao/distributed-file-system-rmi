@@ -10,7 +10,7 @@ import br.ufc.mdcc.distributedfilesystem.interfaces.BalanceNode;
 
 public class BalanceNodeClient {
 	
-	
+
 	public static void main(String[] args) {
 		
 		String name = "balancenode";

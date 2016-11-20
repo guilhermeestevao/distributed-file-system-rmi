@@ -15,15 +15,21 @@ public class BalanceNodeImpl implements BalanceNode{
 	
 	public void addProxy(Proxy proxy) throws RemoteException{
 		// TODO Auto-generated method stub
+		System.out.println("Adicionado "+proxy.getName() + " na lista de proxies do Nó de balanceamento");
 		proxiesList.add(proxy);
-		System.out.println("Adicionado um proxy novo");
-		System.err.println(proxiesList.size());
+		System.out.println("Tamanho atual"+proxiesList.size());
 	}
 
 
 
-	public Proxy requestProxy() {
-		//Retorna algum proxy disponivel na lista
+	public Proxy requestProxy() throws RemoteException{
+		
+		for(Proxy proxy : proxiesList){
+			if (proxy.isAvailable()){
+				return proxy;
+			}
+		}
+		
 		return null;
 	}
 

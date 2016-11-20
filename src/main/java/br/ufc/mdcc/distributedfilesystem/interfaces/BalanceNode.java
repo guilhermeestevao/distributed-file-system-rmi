@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 public interface BalanceNode extends Remote{
 	
 	//Metodos executados por um cliente
-	public abstract Proxy requestProxy();
+	public abstract Proxy requestProxy() throws RemoteException;
 	
 	//Metodos executads pelo proxies
 	public abstract void addProxy(Proxy proxy) throws RemoteException;
