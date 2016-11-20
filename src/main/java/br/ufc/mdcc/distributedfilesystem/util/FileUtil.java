@@ -45,13 +45,32 @@ public class FileUtil {
 	
 	public static void writeFile(File root, File file) throws IOException{
 		
-		File newFile = new File(root.getAbsolutePath() + File.separator + file.getName());
+		String fileName = root.getAbsolutePath() + File.separator + file.getName();
+		
+		File newFile = new File(fileName);
 				
 		byte[] data = Files.readAllBytes(file.toPath());
 		
 		FileOutputStream out = new FileOutputStream(newFile);
 		out.write(data);
 		out.close();
+	}
+	
+	public static File readFile(File root, String name){
+	
+		File target = new File(root, name);
+		
+		if(target.exists())
+			return target;
+		else 
+			return null;
+	}
+	
+	public static void deleteFile(File root, String name){
+		File target = new File(root, name);
+		
+		target.delete();
+		
 	}
 
 }

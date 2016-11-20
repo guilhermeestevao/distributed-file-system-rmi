@@ -13,9 +13,8 @@ public interface Proxy extends Remote{
 	
 	//Metod de leiutra e escreta de soliciados por um cliente
 	abstract File getFile(String name) throws RemoteException;
-	abstract File[] getAllFiles() throws RemoteException;
 	abstract void writeFile(File file) throws RemoteException;
-	abstract void deleteFile(File file) throws RemoteException;
+	abstract void deleteFile(String name) throws RemoteException;
 	abstract void updateFile(File file) throws RemoteException;
 	
 	

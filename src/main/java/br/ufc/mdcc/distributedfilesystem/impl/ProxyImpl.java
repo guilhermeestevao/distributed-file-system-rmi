@@ -5,12 +5,15 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,20 +49,24 @@ public class ProxyImpl implements Proxy{
 
 	public File getFile(String name) throws RemoteException {
 
+		StorageNode[] nodes = getStorageNodes(name);
+		
+		for(StorageNode node : nodes){
+			File file = node.getFile(name);
+			if (file != null){
+				System.out.println("encontrando em "+name);
+				return file;
+			}
+			else
+				System.out.println("Não encontrado em "+node);
+		}
 
-		return null;
-	}
-
-	public File[] getAllFiles() throws RemoteException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void writeFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
 		String name = file.getName();
-		
-		System.out.println(name);
 		
 		StorageNode[] nodes = getStorageNodes(name);
 		
@@ -70,21 +77,24 @@ public class ProxyImpl implements Proxy{
 		
 	}
 
-	public void deleteFile(File file) throws RemoteException {
+	public void deleteFile(String name) throws RemoteException {
 		// TODO Auto-generated method stub
-
+		StorageNode[] nodes = getStorageNodes(name);
+		
+		for(StorageNode node : nodes){
+			node.deleteFile(name);
+		}
 	}
 
 	public void updateFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
-
+		writeFile(file);
 	}
 
 	private void fillPartitionsMap(String filename){
 		
 		partitionsMap = new HashMap<Integer, String[]>();
 		File file = FileUtil.getPartitionMapFile(filename);
-
 
 		try{
 
@@ -113,13 +123,12 @@ public class ProxyImpl implements Proxy{
 	}
 
 	private StorageNode[] getStorageNodes(String name) throws RemoteException{
-		int hash = name.hashCode();
-
-		int partition = hash % partitionsMap.size();
+		
+		int partition = getPartition(name);
+		
+		System.out.println(partition);
 		
 		String[] names = partitionsMap.get(partition); 
-		
-		System.out.println("Hash "+hash+" partitions "+partition+" "+names.toString());
 		
 		StorageNode[] nodes = new StorageNode[names.length];
 		
@@ -142,6 +151,35 @@ public class ProxyImpl implements Proxy{
 		}
 		
 		return nodes;
+	}
+	
+	private BigInteger getHashMD5(String name) throws NoSuchAlgorithmException{
+		MessageDigest m=MessageDigest.getInstance("MD5");
+
+	    m.update(name.getBytes(),0,name.length());
+
+	    BigInteger b = new BigInteger(1,m.digest());
+	    
+		return b;	
+	}
+	
+	private int getPartition(String name){
+		
+		int partition = 0;
+		try {
+			
+			BigInteger hash = getHashMD5(name);
+			
+			partition = (int) (hash.longValue() % partitionsMap.size());
+			
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			System.err.println(e);
+		}finally {
+			System.out.println(partition);
+		}
+		
+		return partition;
 	}
 
 	public String getName() throws RemoteException {

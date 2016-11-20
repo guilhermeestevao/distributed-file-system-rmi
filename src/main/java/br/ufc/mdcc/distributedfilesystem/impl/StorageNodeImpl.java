@@ -18,18 +18,14 @@ public class StorageNodeImpl implements StorageNode{
 	}
 
 	public File getFile(String name) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return FileUtil.readFile(directory, name);
 	}
 
-	public File[] getAllFiles() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public void writeFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
-		System.out.println(name+" "+name+"chamado para escrever no arquivo");
+	
 		try {
 			FileUtil.writeFile(directory, file);
 		} catch (IOException e) {
@@ -38,14 +34,14 @@ public class StorageNodeImpl implements StorageNode{
 		}
 	}
 
-	public void deleteFile(File file) throws RemoteException {
+	public void deleteFile(String name) throws RemoteException {
 		// TODO Auto-generated method stub
-		
+		FileUtil.deleteFile(directory, name);
 	}
 
 	public void updateFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
-		
+		writeFile(file);
 	}
 	
 	
