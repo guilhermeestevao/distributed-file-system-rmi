@@ -22,6 +22,7 @@ import br.ufc.mdcc.distributedfilesystem.interfaces.BalanceNode;
 import br.ufc.mdcc.distributedfilesystem.interfaces.Proxy;
 import br.ufc.mdcc.distributedfilesystem.interfaces.StorageNode;
 import br.ufc.mdcc.distributedfilesystem.util.FileUtil;
+import br.ufc.mdcc.distributedfilesystem.util.PartitionUtil;
 
 public class ProxyImpl implements Proxy{
 
@@ -33,7 +34,7 @@ public class ProxyImpl implements Proxy{
 	public ProxyImpl(String name){
 		this.status = true;
 		this.name = name;
-		fillPartitionsMap(PARTITIONS_FILE_NAME);
+		partitionsMap = PartitionUtil.fillPartitionsMap(PARTITIONS_FILE_NAME);
 
 	}
 
@@ -71,9 +72,13 @@ public class ProxyImpl implements Proxy{
 		StorageNode[] nodes = getStorageNodes(name);
 		
 		for(StorageNode node : nodes){
-			node.writeFile(file);
+			try{
+				if(node != null)
+					node.writeFile(file);
+			}catch(Exception e){
+				continue;		
+			}
 		}
-		
 		
 	}
 
@@ -82,7 +87,12 @@ public class ProxyImpl implements Proxy{
 		StorageNode[] nodes = getStorageNodes(name);
 		
 		for(StorageNode node : nodes){
-			node.deleteFile(name);
+			try{
+				if(node != null)
+					node.deleteFile(name);
+			}catch(Exception e){
+				continue;		
+			}
 		}
 	}
 
@@ -91,36 +101,7 @@ public class ProxyImpl implements Proxy{
 		writeFile(file);
 	}
 
-	private void fillPartitionsMap(String filename){
-		
-		partitionsMap = new HashMap<Integer, String[]>();
-		File file = FileUtil.getPartitionMapFile(filename);
-
-		try{
-
-			FileInputStream fstream = new FileInputStream(file);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String strLine;
-
-			while ((strLine = br.readLine()) != null)   {
-
-				String[] objects = strLine.split(":");
-				
-				int partition = Integer.parseInt(objects[0]);
-				
-				String[] nodes = objects[1].split(",");
-				
-				partitionsMap.put(partition, nodes);
-			
-			}
-			in.close();
-		}catch (Exception e){//Catch exception if any
-			System.err.println("Error: " + e.getMessage());
-		}
-
-
-	}
+	
 
 	private StorageNode[] getStorageNodes(String name) throws RemoteException{
 		
@@ -140,21 +121,20 @@ public class ProxyImpl implements Proxy{
 			StorageNode stub;
 			try {
 				stub = (StorageNode) registry.lookup(nameNode);
+				
 				nodes[i] = stub;
-			} catch (NotBoundException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				System.out.println(e);
+				System.out.println("Nó de armazenamento "+nameNode+" não está disponivel");
 				continue;
 			}
-			
-			
 		}
 		
 		return nodes;
 	}
 	
 	private BigInteger getHashMD5(String name) throws NoSuchAlgorithmException{
-		MessageDigest m=MessageDigest.getInstance("MD5");
+		MessageDigest m = MessageDigest.getInstance("MD5");
 
 	    m.update(name.getBytes(),0,name.length());
 
@@ -172,11 +152,12 @@ public class ProxyImpl implements Proxy{
 			
 			partition = (int) (hash.longValue() % partitionsMap.size());
 			
+			System.out.println(name+" "+hash +" "+partition);
+			
+			
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			System.err.println(e);
-		}finally {
-			System.out.println(partition);
 		}
 		
 		return partition;

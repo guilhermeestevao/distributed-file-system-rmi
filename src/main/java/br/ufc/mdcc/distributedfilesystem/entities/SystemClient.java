@@ -24,15 +24,29 @@ public class SystemClient {
 			Proxy proxy = stub.requestProxy();
 			
 			System.out.println("Selecionado "+proxy.getName());
-			//proxy.writeFile(new File("/home/guilherme/Untitled.ipynb"));
-			//File file = proxy.getFile("Untitled.ipynb");
 			
-			//File root = new File("/home/guilherme");
 			
-			//FileUtil.writeFile(root, file);
+			proxy.writeFile(new File("/home/guilherme/Untitled.ipynb"));
 			
-			//proxy.deleteFile("Untitled.ipynb");
-			//proxy.updateFile(new File("/home/guilherme/Untitled.ipynb"));
+			
+			/*
+			
+			
+			proxy.deleteFile("Untitled.ipynb");
+			
+			
+			
+			File file = proxy.getFile("Untitled.ipynb");
+			
+			File root = new File("/home/guilherme");
+			
+			FileUtil.writeFile(root, file);
+			
+			
+			
+			
+			proxy.updateFile(new File("/home/guilherme/Untitled.ipynb"));
+			*/
 			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block

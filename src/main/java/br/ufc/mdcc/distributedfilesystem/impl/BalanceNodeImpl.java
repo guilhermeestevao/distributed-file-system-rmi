@@ -3,7 +3,9 @@ package br.ufc.mdcc.distributedfilesystem.impl;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.ufc.mdcc.distributedfilesystem.interfaces.BalanceNode;
 import br.ufc.mdcc.distributedfilesystem.interfaces.Proxy;
@@ -11,13 +13,11 @@ import br.ufc.mdcc.distributedfilesystem.interfaces.Proxy;
 public class BalanceNodeImpl implements BalanceNode{
 	
 	private List<Proxy> proxiesList = new ArrayList<Proxy>();
-
 	
 	public void addProxy(Proxy proxy) throws RemoteException{
-		// TODO Auto-generated method stub
-		System.out.println("Adicionado "+proxy.getName() + " na lista de proxies do Nó de balanceamento");
+		// TODO Auto-generated method stub		
 		proxiesList.add(proxy);
-		System.out.println("Tamanho atual"+proxiesList.size());
+
 	}
 
 

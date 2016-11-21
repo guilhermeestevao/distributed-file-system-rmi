@@ -1,9 +1,15 @@
 package br.ufc.mdcc.distributedfilesystem.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileUtil {
 	
@@ -30,6 +36,18 @@ public class FileUtil {
 		
 		if(!file.exists())
 			file.mkdir();
+		
+		File syncFile = new File(file, ".sync");
+		
+		if(!syncFile.exists()){
+			try {
+				syncFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		}
 	
 		return file;
 	}
@@ -68,9 +86,47 @@ public class FileUtil {
 	
 	public static void deleteFile(File root, String name){
 		File target = new File(root, name);
-		
 		target.delete();
+	}
+	
+	public static void saveFileMap(File root, Map<String, Integer> mapFiles){
+		
+		File file = new File(root, ".sync");
+		try {
+			FileOutputStream fout = new FileOutputStream(file);
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(mapFiles);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
+	public static Map<String, Integer> getMapFiles(File root){
+		
+		File file = new File(root, ".sync");
+		
+		FileInputStream fin;
+		try {
+			fin = new FileInputStream(file);
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			Map<String, Integer> map = (Map<String, Integer>) ois.readObject();
+			return map;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		return new HashMap<String, Integer>();
+	}
+	
 
 }
