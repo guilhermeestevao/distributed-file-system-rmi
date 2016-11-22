@@ -34,9 +34,7 @@ public class StorageNodeImpl implements StorageNode{
 			boolean isAtPartition = verifyPartition(name, entry.getValue());
 			
 			if(isAtPartition){
-				
-				System.out.println("Nó "+name+" está na partição "+entry.getKey());
-				
+							
 				String[] siblings = partitionsMap.get(entry.getKey());
 				
 				sync(name, siblings);
@@ -70,7 +68,7 @@ public class StorageNodeImpl implements StorageNode{
 			mapFiles.put(name, 1);
 			break;
 		case DELETE:
-			mapFiles.remove(name);
+			mapFiles.put(name, -1);
 			break;
 		case UPDATE:
 			int lamport = mapFiles.get(name);
@@ -90,7 +88,7 @@ public class StorageNodeImpl implements StorageNode{
 
 	public void updateFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
-			try {
+		try {
 			
 			FileUtil.writeFile(directory, file);
 			updateFileMap(file.getName(), Operation.UPDATE);
@@ -137,7 +135,6 @@ public class StorageNodeImpl implements StorageNode{
 			
 			if(!name.equals(nodeNAme)){
 			
-				System.out.println("Tentando sincronizar com "+name);
 				
 					Registry registry;
 					try {
@@ -178,6 +175,8 @@ public class StorageNodeImpl implements StorageNode{
 				
 					transferFile(entry, storageNode);
 					
+				}else if(lamportOther == -1){
+					deleteFile(entry.getKey());
 				}
 					
 			}else{
@@ -188,14 +187,7 @@ public class StorageNodeImpl implements StorageNode{
 	
 		}
 		
-		for(Entry<String, Integer> entry : this.mapFiles.entrySet()){
-			
-			if(!mapFileList.containsKey(entry.getKey())){
-				deleteFile(entry.getKey());
-			}
-			
-			
-		}
+	
 		
 		
 		

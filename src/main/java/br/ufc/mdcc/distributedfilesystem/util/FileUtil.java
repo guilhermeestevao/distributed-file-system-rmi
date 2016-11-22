@@ -105,7 +105,7 @@ public class FileUtil {
 	}
 	public static Map<String, Integer> getMapFiles(File root){
 		
-		File file = new File(root, ".sync");
+		File file = new File(root, ".syncfiles");
 		
 		FileInputStream fin;
 		try {
@@ -113,16 +113,10 @@ public class FileUtil {
 			ObjectInputStream ois = new ObjectInputStream(fin);
 			Map<String, Integer> map = (Map<String, Integer>) ois.readObject();
 			return map;
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			
+		} 
 
 		
 		return new HashMap<String, Integer>();

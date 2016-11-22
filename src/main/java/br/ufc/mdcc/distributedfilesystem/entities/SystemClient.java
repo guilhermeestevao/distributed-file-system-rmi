@@ -25,14 +25,14 @@ public class SystemClient {
 			
 			System.out.println("Selecionado "+proxy.getName());
 			
+			proxy.deleteFile("Untitled.ipynb");
 			
-			proxy.writeFile(new File("/home/guilherme/Untitled.ipynb"));
 			
 			
 			/*
+			proxy.writeFile(new File("/home/guilherme/Untitled.ipynb"));
 			
 			
-			proxy.deleteFile("Untitled.ipynb");
 			
 			
 			
