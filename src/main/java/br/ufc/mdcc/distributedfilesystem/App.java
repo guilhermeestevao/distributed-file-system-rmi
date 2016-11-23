@@ -15,6 +15,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import br.ufc.mdcc.distributedfilesystem.entities.Event;
 import br.ufc.mdcc.distributedfilesystem.impl.BalanceNodeImpl;
 import br.ufc.mdcc.distributedfilesystem.impl.ProxyImpl;
 import br.ufc.mdcc.distributedfilesystem.impl.StorageNodeImpl;
@@ -43,7 +44,10 @@ public class App {
 			}
 			if(cmdLine.hasOption("sn")){
 				String nameSn = cmdLine.getOptionValue("sn");
-				createProxyNode(nameSn);
+				createStorageNode(nameSn);
+			}if(cmdLine.hasOption("c")){
+				String nameClient = cmdLine.getOptionValue("c");
+				createClientNode(nameClient);
 			}
 			
 		} catch (ParseException e) {
@@ -55,11 +59,20 @@ public class App {
 		} catch (AlreadyBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
     	
     }
     
-    private static void setupOptions(){
+    private static void createClientNode(String nameClient) throws AccessException, RemoteException, NotBoundException {
+		// TODO Auto-generated method stub
+		Event event = new Event(nameClient);
+		event.start();
+	}
+
+	private static void setupOptions(){
 		Option proxy  = Option.builder("p")                 
 				.required(false)                 
 				.desc("Processo que representa um proxy")                 

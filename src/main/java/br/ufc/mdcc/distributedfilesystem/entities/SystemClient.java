@@ -1,15 +1,12 @@
 package br.ufc.mdcc.distributedfilesystem.entities;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-
 import br.ufc.mdcc.distributedfilesystem.interfaces.BalanceNode;
 import br.ufc.mdcc.distributedfilesystem.interfaces.Proxy;
-import br.ufc.mdcc.distributedfilesystem.util.FileUtil;
 
 public class SystemClient {
 
