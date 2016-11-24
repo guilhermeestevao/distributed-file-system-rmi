@@ -15,7 +15,7 @@ public class FileUtil {
 	
 	private static String FILE_SYSTEM_DEFAULT_FOLDER = "FileSystem";
 	
-	private static File getHome(){
+	public static File getHome(){
 		String currentUsersHomeDir = System.getProperty("user.home");
 		
 		File home = new File(currentUsersHomeDir + File.separator + FILE_SYSTEM_DEFAULT_FOLDER);
@@ -37,7 +37,7 @@ public class FileUtil {
 		if(!file.exists())
 			file.mkdir();
 		
-		File syncFile = new File(file, ".sync");
+		File syncFile = new File(file, ".syncfiles");
 		
 		if(!syncFile.exists()){
 			try {
@@ -91,7 +91,7 @@ public class FileUtil {
 	
 	public static void saveFileMap(File root, Map<String, Integer> mapFiles){
 		
-		File file = new File(root, ".sync");
+		File file = new File(root, ".syncfiles");
 		try {
 			FileOutputStream fout = new FileOutputStream(file);
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -103,6 +103,7 @@ public class FileUtil {
 		
 		
 	}
+	
 	public static Map<String, Integer> getMapFiles(File root){
 		
 		File file = new File(root, ".syncfiles");

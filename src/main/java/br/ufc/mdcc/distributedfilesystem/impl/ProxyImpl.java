@@ -22,6 +22,7 @@ import br.ufc.mdcc.distributedfilesystem.interfaces.BalanceNode;
 import br.ufc.mdcc.distributedfilesystem.interfaces.Proxy;
 import br.ufc.mdcc.distributedfilesystem.interfaces.StorageNode;
 import br.ufc.mdcc.distributedfilesystem.util.FileUtil;
+import br.ufc.mdcc.distributedfilesystem.util.HashUtil;
 import br.ufc.mdcc.distributedfilesystem.util.PartitionUtil;
 
 public class ProxyImpl implements Proxy{
@@ -35,7 +36,7 @@ public class ProxyImpl implements Proxy{
 		this.status = true;
 		this.name = name;
 		partitionsMap = PartitionUtil.fillPartitionsMap(PARTITIONS_FILE_NAME);
-
+		System.out.println("Proxy "+name+" executando");
 	}
 
 	public boolean isAvailable() throws RemoteException {
@@ -98,7 +99,18 @@ public class ProxyImpl implements Proxy{
 
 	public void updateFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
-		writeFile(file);
+		String name = file.getName();
+		
+		StorageNode[] nodes = getStorageNodes(name);
+		
+		for(StorageNode node : nodes){
+			try{
+				if(node != null)
+					node.updateFile(file);
+			}catch(Exception e){
+				continue;		
+			}
+		}
 	}
 
 	
@@ -107,7 +119,6 @@ public class ProxyImpl implements Proxy{
 		
 		int partition = getPartition(name);
 		
-		System.out.println(partition);
 		
 		String[] names = partitionsMap.get(partition); 
 		
@@ -133,27 +144,15 @@ public class ProxyImpl implements Proxy{
 		return nodes;
 	}
 	
-	private BigInteger getHashMD5(String name) throws NoSuchAlgorithmException{
-		MessageDigest m = MessageDigest.getInstance("MD5");
-
-	    m.update(name.getBytes(),0,name.length());
-
-	    BigInteger b = new BigInteger(1,m.digest());
-	    
-		return b;	
-	}
 	
 	private int getPartition(String name){
 		
 		int partition = 0;
 		try {
 			
-			BigInteger hash = getHashMD5(name);
+			BigInteger hash = HashUtil.getHashMD5(name);
 			
 			partition = (int) (hash.longValue() % partitionsMap.size());
-			
-			System.out.println(name+" "+hash +" "+partition);
-			
 			
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block

@@ -12,9 +12,12 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
 
+import javax.swing.JFileChooser;
+
 import br.ufc.mdcc.distributedfilesystem.impl.BalanceNodeImpl;
 import br.ufc.mdcc.distributedfilesystem.interfaces.BalanceNode;
 import br.ufc.mdcc.distributedfilesystem.interfaces.Proxy;
+import br.ufc.mdcc.distributedfilesystem.util.FileUtil;
 
 public class Event {
 	
@@ -30,7 +33,7 @@ public class Event {
 	
 	public void start() throws AccessException, RemoteException, NotBoundException{
 		
-		Registry registry = LocateRegistry.getRegistry(null, 1099);
+		Registry registry = LocateRegistry.getRegistry();
 		
 		balanceNode = (BalanceNode) registry.lookup("balancenode");
 		
@@ -48,39 +51,31 @@ public class Event {
 	}
 
 	private void process(int opc) throws IOException {
-		Proxy proxy = null;
+	
 		switch (opc) {
 		case 1:
-			System.out.println("Digite o path do arquivo");
-			String pathWrite = in.readLine();
-			proxy = balanceNode.requestProxy();
-			proxy.setAvailability(false);
-			proxy.writeFile(new File(pathWrite));
-			proxy.setAvailability(true);
+			System.out.println("Selecione um arquivo");
+			File file = selecteFile();
+			write(file);
 			break;
 		case 2:
 			System.out.println("Digite o nome do arquivo");
+			System.out.print("> "); 
+			System.out.flush();
 			String nameRead = in.readLine();
-			proxy = balanceNode.requestProxy();
-			proxy.setAvailability(false);
-			proxy.getFile(nameRead);
-			proxy.setAvailability(true);
+			read(nameRead);
 			break;
 		case 3:
 			System.out.println("Digite o nome do arquivo");
+			System.out.print("> "); 
+			System.out.flush();
 			String nameRemove = in.readLine();
-			proxy = balanceNode.requestProxy();
-			proxy.setAvailability(false);
-			proxy.deleteFile(nameRemove);
-			proxy.setAvailability(true);
+			delete(nameRemove);
 			break;
 		case 4:
-			System.out.println("Digite o path do arquivo");
-			String pathUpdate = in.readLine();
-			proxy = balanceNode.requestProxy();
-			proxy.setAvailability(false);
-			proxy.updateFile(new File(pathUpdate));
-			proxy.setAvailability(true);
+			System.out.println("Selecione um arquivo");
+			File fileUpdated = selecteFile();
+			update(fileUpdated);
 			break;
 
 		default:
@@ -102,5 +97,61 @@ public class Event {
 		String s = in.readLine();
 		return Integer.parseInt(s);
 	}
+	
+    private File selecteFile(){
+    	JFileChooser chooser = new JFileChooser();
+    	chooser.showOpenDialog(null);
+    
+    	File file = chooser.getSelectedFile();
+    	return file;
+    }
+    
+    
+    private void write(File file) throws RemoteException{
+    	Proxy proxy = balanceNode.requestProxy();
+    	if(proxy != null){
+    		proxy.setAvailability(false);
+			proxy.writeFile(file);
+			proxy.setAvailability(true);
+    	}else{
+    		System.out.println("Nenhum proxy disponível");
+    	}
+    }
+    
+    private void read(String name) throws IOException{
+    	Proxy proxy = balanceNode.requestProxy();
+		if(proxy != null){
+			proxy.setAvailability(false);
+			File fileReaded = proxy.getFile(name);
+			proxy.setAvailability(true);
+			FileUtil.writeFile(FileUtil.getHome(), fileReaded);
+		}else{
+			System.out.println("Nenhum proxy disponível");
+		}
+	}
+   
+    private void delete(String name) throws IOException{
+    	Proxy proxy = balanceNode.requestProxy();
+		
+    	if(proxy != null){
+    		proxy.setAvailability(false);
+			proxy.deleteFile(name);
+			proxy.setAvailability(true);
+    	}else{
+    		System.out.println("Nenhum proxy disponível");
+    	}
+    }
+    
+    private void update(File file) throws RemoteException{
+    	Proxy proxy = balanceNode.requestProxy();
+    	if(proxy != null){
+    		proxy.setAvailability(false);
+			proxy.updateFile(file);
+			proxy.setAvailability(true);
+    	}else{
+    		System.out.println("Nenhum proxy disponível");
+    	}
+    }
+    
 
 }

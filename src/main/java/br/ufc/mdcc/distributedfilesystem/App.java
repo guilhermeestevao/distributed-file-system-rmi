@@ -7,14 +7,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
 import br.ufc.mdcc.distributedfilesystem.entities.Event;
 import br.ufc.mdcc.distributedfilesystem.impl.BalanceNodeImpl;
 import br.ufc.mdcc.distributedfilesystem.impl.ProxyImpl;
@@ -34,16 +32,16 @@ public class App {
 			CommandLineParser parser = new DefaultParser();
 			CommandLine cmdLine = parser.parse(options, args);
 			
-			if(cmdLine.hasOption("bn")){
-				String nameBn = cmdLine.getOptionValue("bn");
+			if(cmdLine.hasOption("b")){
+				String nameBn = cmdLine.getOptionValue("b");
 				createBalanceNode(nameBn);
 			}
 			if(cmdLine.hasOption("p")){
 				String nameProxy = cmdLine.getOptionValue("p");
 				createProxyNode(nameProxy);
 			}
-			if(cmdLine.hasOption("sn")){
-				String nameSn = cmdLine.getOptionValue("sn");
+			if(cmdLine.hasOption("s")){
+				String nameSn = cmdLine.getOptionValue("s");
 				createStorageNode(nameSn);
 			}if(cmdLine.hasOption("c")){
 				String nameClient = cmdLine.getOptionValue("c");
@@ -62,6 +60,8 @@ public class App {
 		} catch (NotBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			// TODO: handle exception
 		}
     	
     }
@@ -87,14 +87,14 @@ public class App {
 				.hasArg()                 
 				.build();
 		
-		Option balancenode  = Option.builder("bn")                 
+		Option balancenode  = Option.builder("b")                 
 				.required(false)                 
 				.desc("Processo que represnta o nó de balanceamneto")                 
 				.longOpt("balancenode") 
 				.hasArg()
 				.build();
 		
-		Option storagenode  = Option.builder("sn")                 
+		Option storagenode  = Option.builder("s")                 
 				.required(false)                 
 				.desc("Processo que represetna um nó de armazenamento")                 
 				.longOpt("balancenode")    
@@ -113,7 +113,6 @@ public class App {
 		BalanceNode stub = (BalanceNode) UnicastRemoteObject.exportObject(node, 0);
         Registry registry = LocateRegistry.createRegistry(1099);
 		registry.bind(name, stub);
-		System.err.println("Nó de balanceamneto está em execução!");
     }
     
     private static void createProxyNode(String name) throws RemoteException{
@@ -123,12 +122,12 @@ public class App {
 		try {
 			registry.bind(name, stub);
 			registryOnBalanceNodeList(proxy);
-			
-			
+				
 		} catch (AlreadyBoundException e) {
 			// TODO Auto-generated catch block
 			try {
 				registry.rebind(name, stub);
+				registryOnBalanceNodeList(proxy);
 			} catch (AccessException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -138,7 +137,6 @@ public class App {
 			}
 		}
 		
-		System.err.println("Proxy "+proxy+"está disponivel");
 		
     }
     
@@ -165,20 +163,20 @@ public class App {
 				e1.printStackTrace();
 			}
 		}
-		
-		System.err.println("Nó "+node+" está disponivel");
+
     }
     
-
+    
+    
 	private static void registryOnBalanceNodeList(ProxyImpl proxy) {
 		// TODO Auto-generated method stub
 		String name = "balancenode";
 		try {
-			Registry registry = LocateRegistry.getRegistry(null, 1099);
+			Registry registry = LocateRegistry.getRegistry();
 			
 			BalanceNode stub = (BalanceNode) registry.lookup(name);
 			
-			stub.addProxy(proxy);
+			stub.addProxy(proxy.getName());
 			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block

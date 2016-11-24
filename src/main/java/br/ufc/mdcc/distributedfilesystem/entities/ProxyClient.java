@@ -55,7 +55,7 @@ public class ProxyClient {
 			
 			BalanceNode stub = (BalanceNode) registry.lookup(name);
 			
-			stub.addProxy(proxy);
+			stub.addProxy(proxy.getName());
 			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block

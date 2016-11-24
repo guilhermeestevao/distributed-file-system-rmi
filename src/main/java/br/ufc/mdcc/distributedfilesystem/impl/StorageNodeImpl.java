@@ -16,41 +16,41 @@ import br.ufc.mdcc.distributedfilesystem.util.FileUtil;
 import br.ufc.mdcc.distributedfilesystem.util.PartitionUtil;
 
 public class StorageNodeImpl implements StorageNode{
-	
+
 	private String name;
 	private File directory;
 	private Map<Integer, String[]> partitionsMap;
 	private Map<String, Integer> mapFiles; 
 	private static final String PARTITIONS_FILE_NAME="partitions";
-	
+
 	public StorageNodeImpl(String name){
 		this.name = name;
 		this.directory = FileUtil.readDirectory(name);
 		partitionsMap = PartitionUtil.fillPartitionsMap(PARTITIONS_FILE_NAME);
 		mapFiles = FileUtil.getMapFiles(directory);
-		
+		System.out.println("Adicionado "+name);
 		for(Entry<Integer, String[]> entry : partitionsMap.entrySet()){
-			
+
 			boolean isAtPartition = verifyPartition(name, entry.getValue());
-			
+
 			if(isAtPartition){
-							
+
 				String[] siblings = partitionsMap.get(entry.getKey());
-				
+
 				sync(name, siblings);
 			}	
 		}	
 	}	
 
 	public File getFile(String name) throws RemoteException {
-	
+
 		return FileUtil.readFile(directory, name);
 	}
 
 
 	public void writeFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
-	
+
 		try {
 			FileUtil.writeFile(directory, file);
 			updateFileMap(file.getName(), Operation.CREATE);
@@ -62,21 +62,25 @@ public class StorageNodeImpl implements StorageNode{
 
 	private void updateFileMap(String name, Operation opc) {
 		// TODO Auto-generated method stub
-		
+
 		switch(opc){
 		case CREATE:
+			System.out.println(name+" sendo criado em "+this.name+" lamport atualizado para 1");
 			mapFiles.put(name, 1);
 			break;
 		case DELETE:
+			System.out.println(name+" sendo deletado em "+this.name+" lamport atualizado para -1");
 			mapFiles.put(name, -1);
 			break;
 		case UPDATE:
+
 			int lamport = mapFiles.get(name);
 			lamport++;
 			mapFiles.put(name, lamport);
+			System.out.println(name+" sendo atualizado em "+this.name+" lamporta atualizado para "+lamport);
 			break;
 		}
-		
+
 		FileUtil.saveFileMap(directory, mapFiles);
 	}
 
@@ -89,7 +93,7 @@ public class StorageNodeImpl implements StorageNode{
 	public void updateFile(File file) throws RemoteException {
 		// TODO Auto-generated method stub
 		try {
-			
+
 			FileUtil.writeFile(directory, file);
 			updateFileMap(file.getName(), Operation.UPDATE);
 		} catch (IOException e) {
@@ -97,17 +101,20 @@ public class StorageNodeImpl implements StorageNode{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void updateFile(File file, int lamport) throws RemoteException {
 		// TODO Auto-generated method stub
 		try {
-			
+
 			FileUtil.writeFile(directory, file);
-					
+
 			this.mapFiles.put(file.getName(), lamport);
-			
+
+
 			FileUtil.saveFileMap(directory, mapFiles);
-			
+
+			System.out.println(file.getName()+" sendo atualizado em "+this.name+" lamporta atualizado para "+lamport);
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -118,92 +125,91 @@ public class StorageNodeImpl implements StorageNode{
 		// TODO Auto-generated method stub
 		return name;
 	}
-	
+
 	private boolean verifyPartition(String name, String[] nodes){
-		
+
 		for(String nameNode : nodes){
 			if(nameNode.equals(name))
 				return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	private void sync(String nodeNAme, String[] nodes){
-		
+
 		for(String name: nodes){
-			
+
 			if(!name.equals(nodeNAme)){
-			
-				
-					Registry registry;
-					try {
-						registry = LocateRegistry.getRegistry();
-						StorageNode storageNode = (StorageNode) registry.lookup(name);
-						
-						compareMapFiles(storageNode);
-						
-						
-						break;
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-				
-						continue;
-					}
-				
+
+				Registry registry;
+				try {
+					registry = LocateRegistry.getRegistry();
+					StorageNode storageNode = (StorageNode) registry.lookup(name);
+
+					compareMapFiles(storageNode);
+
+
+					break;
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+
+					continue;
+				}
+
 			}
-			
-			
+
+
 		}
-	
-		
+
+
 	}
 
 	private void compareMapFiles(StorageNode storageNode) throws RemoteException {
 		// TODO Auto-generated method stub
 		Map<String, Integer> mapFileList = storageNode.getMapFileList();
-		
+
 		for(Entry<String, Integer> entry : mapFileList.entrySet()){
-			
+
 			if(this.mapFiles.containsKey(entry.getKey())){
-				
+
 				int lamportThis = this.mapFiles.get(entry.getKey());
-				
+
 				int lamportOther = entry.getValue(); 
-				
+
 				if(lamportOther > lamportThis){
-				
+
 					transferFile(entry, storageNode);
-					
+
 				}else if(lamportOther == -1){
 					deleteFile(entry.getKey());
 				}
-					
+
 			}else{
-				
+
 				transferFile(entry, storageNode);
-				
+
 			}
-	
+
 		}
-		
-	
-		
-		
-		
+
+
+
+
+
 	}
 
-	
+
 
 	private void transferFile(Entry<String, Integer> entry, StorageNode origin) throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 		File root = origin.getDirectoryNode();
-		
+
 		File target = FileUtil.readFile(root, entry.getKey());
-		
+
 		updateFile(target, entry.getValue());
-		
+
 	}
 
 	public Map<String, Integer> getMapFileList() throws RemoteException{
@@ -215,7 +221,7 @@ public class StorageNodeImpl implements StorageNode{
 		// TODO Auto-generated method stub
 		return directory;
 	}
-	
-	
+
+
 
 }

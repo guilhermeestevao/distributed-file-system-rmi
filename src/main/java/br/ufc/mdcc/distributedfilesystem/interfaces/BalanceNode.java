@@ -10,7 +10,7 @@ public interface BalanceNode extends Remote{
 	public abstract Proxy requestProxy() throws RemoteException;
 	
 	//Metodos executads pelo proxies
-	public abstract void addProxy(Proxy proxy) throws RemoteException;
+	public abstract void addProxy(String proxy) throws RemoteException;
 	
 	
 }
